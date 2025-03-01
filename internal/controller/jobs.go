@@ -64,7 +64,7 @@ func (r *NotificationReconciler) checkJobStatus(ctx context.Context, notificatio
 		}
 
 		jobFinished := job.Status.Succeeded > 0 ||
-			(job.Status.Failed > 0 && int32(job.Status.Failed) >= backoffLimit)
+			(job.Status.Failed > 0 && job.Status.Failed >= backoffLimit)
 
 		if jobFinished {
 			now := metav1.Now()

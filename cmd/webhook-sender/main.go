@@ -68,7 +68,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to send webhook: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("Failed to close response body: %v", err)
+		}
+	}()
 
 	// Check response
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {

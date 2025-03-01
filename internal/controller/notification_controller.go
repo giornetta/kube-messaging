@@ -102,7 +102,7 @@ func (r *NotificationReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	}
 
 	// Check if notification needs to be sent
-	shouldSend, nextSendTime, err := r.shouldSendNotification(ctx, &notification)
+	shouldSend, nextSendTime, err := r.shouldSendNotification(&notification)
 	if err != nil {
 		logger.Error(err, "Failed to determine if notification should be sent")
 		r.updateStatusWithError(ctx, &notification, "EvaluationFailed", err.Error())
@@ -165,7 +165,7 @@ func (r *NotificationReconciler) initializeStatusIfNeeded(ctx context.Context, n
 // - boolean indicating if the notification should be sent
 // - *time.Time pointer to next send time (if applicable)
 // - error if evaluation fails
-func (r *NotificationReconciler) shouldSendNotification(ctx context.Context, notification *appsv1alpha1.Notification) (bool, *time.Time, error) {
+func (r *NotificationReconciler) shouldSendNotification(notification *appsv1alpha1.Notification) (bool, *time.Time, error) {
 	// If never sent before, we should send it now.
 	if notification.Status.LastSentTime == nil {
 		return true, nil, nil
@@ -327,27 +327,4 @@ func (r *NotificationReconciler) sendSlackNotification(notification *appsv1alpha
 	// return r.slackClient.PostMessage(slack.Channel, notification.Spec.Body, slack.WebhookURL)
 
 	return nil
-}
-
-// calculateNextReconcileTime determines when to next reconcile this notification
-func (r *NotificationReconciler) calculateNextReconcileTime(notification *appsv1alpha1.Notification) ctrl.Result {
-	// If there's no schedule or we've reached max repetitions, no need to requeue
-	if notification.Spec.Schedule == nil {
-		return ctrl.Result{}
-	}
-
-	maxRepetitions := getMaxRepetitionsOrDefault(notification, 1)
-	if notification.Status.SentCount >= maxRepetitions {
-		return ctrl.Result{}
-	}
-
-	// Calculate next run time based on last sent time and interval
-	interval, err := time.ParseDuration(notification.Spec.Schedule.Interval)
-	if err != nil {
-		// Shouldn't happen as we validated this earlier, but just in case
-		return ctrl.Result{}
-	}
-
-	nextRun := notification.Status.LastSentTime.Add(interval)
-	return ctrl.Result{RequeueAfter: time.Until(nextRun)}
 }
