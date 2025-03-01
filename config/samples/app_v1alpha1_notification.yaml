@@ -1,0 +1,9 @@
+apiVersion: app.learn-operators.michelegiornetta.com/v1alpha1
+kind: Notification
+metadata:
+  labels:
+    app.kubernetes.io/name: learn-operators
+    app.kubernetes.io/managed-by: kustomize
+  name: notification-sample
+spec:
+  # TODO(user): Add fields here
