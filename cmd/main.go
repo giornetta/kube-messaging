@@ -37,8 +37,8 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	appv1alpha1 "github.com/giornetta/learn-operators/api/v1alpha1"
-	"github.com/giornetta/learn-operators/internal/controller"
+	appv1alpha1 "github.com/giornetta/kube-messaging/api/v1alpha1"
+	"github.com/giornetta/kube-messaging/internal/controller"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -184,7 +184,7 @@ func main() {
 		WebhookServer:          webhookServer,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "abc831e8.learn-operators.michelegiornetta.com",
+		LeaderElectionID:       "abc831e8.kube-messaging.michelegiornetta.com",
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly

@@ -13,7 +13,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - app.learn-operators.michelegiornetta.com
+  - app.kube-messaging.michelegiornetta.com
   resources:
   - notifications
   verbs:
@@ -25,13 +25,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - app.learn-operators.michelegiornetta.com
+  - app.kube-messaging.michelegiornetta.com
   resources:
   - notifications/finalizers
   verbs:
   - update
 - apiGroups:
-  - app.learn-operators.michelegiornetta.com
+  - app.kube-messaging.michelegiornetta.com
   resources:
   - notifications/status
   verbs:

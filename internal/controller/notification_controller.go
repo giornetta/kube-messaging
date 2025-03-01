@@ -32,7 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	notificationv1alpha1 "github.com/giornetta/learn-operators/api/v1alpha1"
+	appsv1alpha1 "github.com/giornetta/kube-messaging/api/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -44,9 +44,9 @@ type NotificationReconciler struct {
 	WebhookImage string
 }
 
-// +kubebuilder:rbac:groups=app.learn-operators.michelegiornetta.com,resources=notifications,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=app.learn-operators.michelegiornetta.com,resources=notifications/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=app.learn-operators.michelegiornetta.com,resources=notifications/finalizers,verbs=update
+// +kubebuilder:rbac:groups=app.kube-messaging.michelegiornetta.com,resources=notifications,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=app.kube-messaging.michelegiornetta.com,resources=notifications/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=app.kube-messaging.michelegiornetta.com,resources=notifications/finalizers,verbs=update
 // +kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=batch,resources=jobs/status,verbs=get
 // +kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;watch
@@ -58,14 +58,14 @@ func (r *NotificationReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	logger.Info("Reconciling Notification", "name", req.Name, "namespace", req.Namespace)
 
 	// Fetch the Notification instance
-	var notification notificationv1alpha1.Notification
+	var notification appsv1alpha1.Notification
 	if err := r.Get(ctx, req.NamespacedName, &notification); err != nil {
 		// We are returning the error if it's different than "NotFound", otherwise we're ignoring it and quitting early.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
 	// Skip reconciliation if notification is already completed
-	if notification.Status.CurrentState == notificationv1alpha1.NotificationCompleted {
+	if notification.Status.CurrentState == appsv1alpha1.NotificationCompleted {
 		logger.Info("Notification already completed, skipping reconciliation",
 			"name", notification.Name,
 			"namespace", notification.Namespace)
@@ -119,15 +119,15 @@ func (r *NotificationReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 // initializeStatusIfNeeded initializes the notification status if it's empty.
 // Returns true if the status was initialized (indicating a requeue is needed), and an error indicating if something failed when checking or updating.
-func (r *NotificationReconciler) initializeStatusIfNeeded(ctx context.Context, notification *notificationv1alpha1.Notification) (bool, error) {
+func (r *NotificationReconciler) initializeStatusIfNeeded(ctx context.Context, notification *appsv1alpha1.Notification) (bool, error) {
 	if notification.Status.Conditions != nil {
 		return false, nil
 	}
 
 	now := metav1.Now()
-	notification.Status.Conditions = []notificationv1alpha1.NotificationCondition{
+	notification.Status.Conditions = []appsv1alpha1.NotificationCondition{
 		{
-			Type:               notificationv1alpha1.NotificationPending,
+			Type:               appsv1alpha1.NotificationPending,
 			Status:             metav1.ConditionTrue,
 			LastTransitionTime: now,
 			Reason:             "Initializing",
@@ -148,7 +148,7 @@ func (r *NotificationReconciler) initializeStatusIfNeeded(ctx context.Context, n
 // - boolean indicating if the notification should be sent
 // - *time.Time pointer to next send time (if applicable)
 // - error if evaluation fails
-func (r *NotificationReconciler) shouldSendNotification(ctx context.Context, notification *notificationv1alpha1.Notification) (bool, *time.Time, error) {
+func (r *NotificationReconciler) shouldSendNotification(ctx context.Context, notification *appsv1alpha1.Notification) (bool, *time.Time, error) {
 	// If never sent before, we should send it now.
 	if notification.Status.LastSentTime == nil {
 		return true, nil, nil
@@ -186,7 +186,7 @@ func (r *NotificationReconciler) shouldSendNotification(ctx context.Context, not
 }
 
 // Helper to get max repetitions or default value
-func getMaxRepetitionsOrDefault(notification *notificationv1alpha1.Notification, defaultValue int) int {
+func getMaxRepetitionsOrDefault(notification *appsv1alpha1.Notification, defaultValue int) int {
 	if notification.Spec.Schedule != nil && notification.Spec.Schedule.MaxRepetitions != nil {
 		return *notification.Spec.Schedule.MaxRepetitions
 	}
@@ -197,7 +197,7 @@ func getMaxRepetitionsOrDefault(notification *notificationv1alpha1.Notification,
 // SetupWithManager sets up the controller with the Manager.
 func (r *NotificationReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&notificationv1alpha1.Notification{}).
+		For(&appsv1alpha1.Notification{}).
 		Named("notification").
 		Watches(
 			&batchv1.Job{},
@@ -238,8 +238,8 @@ func (r *NotificationReconciler) jobToNotification(ctx context.Context, obj clie
 }
 
 // updateStatusWithError updates notification status to indicate an error
-func (r *NotificationReconciler) updateStatusWithError(ctx context.Context, notification *notificationv1alpha1.Notification, reason string, message string) {
-	updateNotificationCondition(notification, notificationv1alpha1.NotificationFailed, reason, message)
+func (r *NotificationReconciler) updateStatusWithError(ctx context.Context, notification *appsv1alpha1.Notification, reason string, message string) {
+	updateNotificationCondition(notification, appsv1alpha1.NotificationFailed, reason, message)
 
 	if err := r.Status().Update(ctx, notification); err != nil {
 		log.FromContext(ctx).Error(err, "Failed to update notification status with error")
@@ -247,7 +247,7 @@ func (r *NotificationReconciler) updateStatusWithError(ctx context.Context, noti
 }
 
 // updateStatusAfterSuccessfulSend updates the notification status after a successful send
-func (r *NotificationReconciler) updateStatusAfterSuccessfulSend(ctx context.Context, notification *notificationv1alpha1.Notification) error {
+func (r *NotificationReconciler) updateStatusAfterSuccessfulSend(ctx context.Context, notification *appsv1alpha1.Notification) error {
 	now := metav1.Now()
 	notification.Status.LastSentTime = &now
 	notification.Status.SentCount++
@@ -259,11 +259,11 @@ func (r *NotificationReconciler) updateStatusAfterSuccessfulSend(ctx context.Con
 
 	if isComplete {
 		// Final send completed, mark as Completed
-		updateNotificationCondition(notification, notificationv1alpha1.NotificationCompleted, "AllSendsCompleted",
+		updateNotificationCondition(notification, appsv1alpha1.NotificationCompleted, "AllSendsCompleted",
 			fmt.Sprintf("All notification sends completed (%d/%d)", notification.Status.SentCount, maxRepetitions))
 	} else {
 		// More sends to go, keep as Ready
-		updateNotificationCondition(notification, notificationv1alpha1.NotificationReady, "SendCompleted",
+		updateNotificationCondition(notification, appsv1alpha1.NotificationReady, "SendCompleted",
 			fmt.Sprintf("Notification sent successfully (%d/%d)", notification.Status.SentCount, maxRepetitions))
 	}
 
@@ -271,7 +271,7 @@ func (r *NotificationReconciler) updateStatusAfterSuccessfulSend(ctx context.Con
 }
 
 // Helper to update notification condition
-func updateNotificationCondition(notification *notificationv1alpha1.Notification, state notificationv1alpha1.NotificationStateType, reason string, message string) {
+func updateNotificationCondition(notification *appsv1alpha1.Notification, state appsv1alpha1.NotificationStateType, reason string, message string) {
 	now := metav1.Now()
 
 	for i, condition := range notification.Status.Conditions {
@@ -285,7 +285,7 @@ func updateNotificationCondition(notification *notificationv1alpha1.Notification
 	}
 
 	// Condition not found, create new one
-	notification.Status.Conditions = append(notification.Status.Conditions, notificationv1alpha1.NotificationCondition{
+	notification.Status.Conditions = append(notification.Status.Conditions, appsv1alpha1.NotificationCondition{
 		Type:               state,
 		Status:             metav1.ConditionTrue,
 		LastTransitionTime: now,
@@ -297,7 +297,7 @@ func updateNotificationCondition(notification *notificationv1alpha1.Notification
 }
 
 // sendNotification is responsible for sending the notification to the appropriate destination
-func (r *NotificationReconciler) sendNotification(ctx context.Context, notification *notificationv1alpha1.Notification) error {
+func (r *NotificationReconciler) sendNotification(ctx context.Context, notification *appsv1alpha1.Notification) error {
 	logger := log.FromContext(ctx)
 	logger.Info("Processing notification", "name", notification.Name, "namespace", notification.Namespace)
 
@@ -314,7 +314,7 @@ func (r *NotificationReconciler) sendNotification(ctx context.Context, notificat
 }
 
 // sendEmailNotification handles email notifications
-func (r *NotificationReconciler) sendEmailNotification(notification *notificationv1alpha1.Notification) error {
+func (r *NotificationReconciler) sendEmailNotification(notification *appsv1alpha1.Notification) error {
 	email := notification.Spec.Destination.Email
 
 	log.Log.Info("Sending email notification",
@@ -331,7 +331,7 @@ func (r *NotificationReconciler) sendEmailNotification(notification *notificatio
 }
 
 // sendSlackNotification handles Slack notifications
-func (r *NotificationReconciler) sendSlackNotification(notification *notificationv1alpha1.Notification) error {
+func (r *NotificationReconciler) sendSlackNotification(notification *appsv1alpha1.Notification) error {
 	slack := notification.Spec.Destination.Slack
 
 	log.Log.Info("Sending Slack notification",
@@ -347,7 +347,7 @@ func (r *NotificationReconciler) sendSlackNotification(notification *notificatio
 }
 
 // calculateNextReconcileTime determines when to next reconcile this notification
-func (r *NotificationReconciler) calculateNextReconcileTime(notification *notificationv1alpha1.Notification) ctrl.Result {
+func (r *NotificationReconciler) calculateNextReconcileTime(notification *appsv1alpha1.Notification) ctrl.Result {
 	// If there's no schedule or we've reached max repetitions, no need to requeue
 	if notification.Spec.Schedule == nil {
 		return ctrl.Result{}

@@ -1,4 +1,4 @@
-module github.com/giornetta/learn-operators
+module github.com/giornetta/kube-messaging
 
 go 1.23.0
 

@@ -27,7 +27,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	appv1alpha1 "github.com/giornetta/learn-operators/api/v1alpha1"
+	appv1alpha1 "github.com/giornetta/kube-messaging/api/v1alpha1"
 )
 
 var _ = Describe("Notification Controller", func() {

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	notificationv1alpha1 "github.com/giornetta/learn-operators/api/v1alpha1"
+	appsv1alpha1 "github.com/giornetta/kube-messaging/api/v1alpha1"
 
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -16,7 +16,7 @@ import (
 )
 
 // Update the sendWebhookNotification method:
-func (r *NotificationReconciler) sendWebhookNotification(ctx context.Context, notification *notificationv1alpha1.Notification) error {
+func (r *NotificationReconciler) sendWebhookNotification(ctx context.Context, notification *appsv1alpha1.Notification) error {
 	logger := log.FromContext(ctx)
 
 	// Create a unique job name
