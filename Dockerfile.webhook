@@ -1,0 +1,15 @@
+FROM golang:1.23-alpine AS builder
+
+WORKDIR /app
+COPY . .
+
+# Build the webhook sender
+RUN CGO_ENABLED=0 GOOS=linux go build -o webhook-sender ./cmd/webhook-sender
+
+# Create a minimal image
+FROM alpine:3.18
+
+WORKDIR /app
+COPY --from=builder /app/webhook-sender .
+
+CMD ["/app/webhook-sender"]

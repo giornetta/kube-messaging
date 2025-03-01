@@ -102,24 +102,21 @@ type Schedule struct {
 	MaxRepetitions *int `json:"maxRepetitions,omitempty"`
 }
 
-// ConditionType represents the condition of the Notification
-type ConditionType string
+// Add a new type for the current state
+// +kubebuilder:validation:Enum=Pending;Ready;Completed;Failed
+type NotificationStateType string
 
 const (
-	// NotificationReady means the notification is ready to be processed
-	NotificationReady ConditionType = "Ready"
-
-	// NotificationFailed means the notification processing has failed
-	NotificationFailed ConditionType = "Failed"
-
-	// NotificationPending means the notification is waiting to be processed
-	NotificationPending ConditionType = "Pending"
+	NotificationPending   NotificationStateType = "Pending"
+	NotificationReady     NotificationStateType = "Ready"
+	NotificationCompleted NotificationStateType = "Completed"
+	NotificationFailed    NotificationStateType = "Failed"
 )
 
 // NotificationCondition defines the observed state of a Notification condition
 type NotificationCondition struct {
 	// Type of the condition
-	Type ConditionType `json:"type"`
+	Type NotificationStateType `json:"type"`
 
 	// Status of the condition, one of True, False, Unknown
 	Status metav1.ConditionStatus `json:"status"`
@@ -144,6 +141,10 @@ type NotificationCondition struct {
 
 // NotificationStatus defines the observed state of Notification
 type NotificationStatus struct {
+	// CurrentState represents the active status of the notification
+	// +optional
+	CurrentState NotificationStateType `json:"currentState,omitempty"`
+
 	// Conditions represent the latest available observations of the notification's state
 	// +optional
 	Conditions []NotificationCondition `json:"conditions,omitempty"`
@@ -159,6 +160,7 @@ type NotificationStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.currentState"
 
 // Notification is the Schema for the notifications API.
 type Notification struct {

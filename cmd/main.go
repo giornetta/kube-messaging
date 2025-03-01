@@ -202,9 +202,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	webhookSenderImage := os.Getenv("WEBHOOK_IMAGE")
+	if webhookSenderImage == "" {
+		setupLog.Error(err, "WEBHOOK_IMAGE environment variable is required")
+		os.Exit(1)
+	}
+
 	if err = (&controller.NotificationReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:       mgr.GetClient(),
+		Scheme:       mgr.GetScheme(),
+		WebhookImage: webhookSenderImage,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Notification")
 		os.Exit(1)

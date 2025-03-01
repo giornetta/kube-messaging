@@ -1,9 +1,36 @@
 apiVersion: app.learn-operators.michelegiornetta.com/v1alpha1
 kind: Notification
 metadata:
+  name: demo-webhook-notification
+  namespace: default
   labels:
     app.kubernetes.io/name: learn-operators
     app.kubernetes.io/managed-by: kustomize
-  name: notification-sample
 spec:
-  # TODO(user): Add fields here
+  body: "This is a test notification from your Kubernetes cluster!"
+  destination:
+    webhook:
+      url: "https://webhook.site/91a4e3ac-1bae-4d03-afbb-cfc2c469c9a5"
+      headers:
+        Content-Type: "application/json"
+        X-Source: "kubernetes-notification"
+---
+apiVersion: app.learn-operators.michelegiornetta.com/v1alpha1
+kind: Notification
+metadata:
+  name: demo-webhook-notification-multiple
+  namespace: default
+  labels:
+    app.kubernetes.io/name: learn-operators
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  body: "This is a repeated test notification from your Kubernetes cluster!"
+  destination:
+    webhook:
+      url: "https://webhook.site/91a4e3ac-1bae-4d03-afbb-cfc2c469c9a5"
+      headers:
+        Content-Type: "application/json"
+        X-Source: "kubernetes-notification"
+  schedule:
+    interval: 2m
+    maxRepetitions: 5
