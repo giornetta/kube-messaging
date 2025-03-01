@@ -20,7 +20,15 @@ func (r *NotificationReconciler) sendWebhookNotification(ctx context.Context, no
 	logger := log.FromContext(ctx)
 
 	// Create a unique job name
-	jobName := fmt.Sprintf("webhook-%s-%d", notification.Name, notification.Status.SentCount+1)
+	jobName := fmt.Sprintf("webhook-%s-%s-%d",
+		notification.Namespace,
+		notification.Name,
+		notification.Status.SentCount+1)
+
+	// Ensure the name isn't too long for Kubernetes (63 chars max)
+	if len(jobName) > 63 {
+		jobName = jobName[:63]
+	}
 
 	// Prepare webhook data as JSON
 	webhookData := map[string]interface{}{

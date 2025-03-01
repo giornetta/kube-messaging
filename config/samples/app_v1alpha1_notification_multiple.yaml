@@ -1,16 +1,19 @@
 apiVersion: app.kube-messaging.michelegiornetta.com/v1alpha1
 kind: Notification
 metadata:
-  name: demo-webhook-notification-new
+  name: demo-webhook-notification-multiple
   namespace: default
   labels:
     app.kubernetes.io/name: kube-messaging
     app.kubernetes.io/managed-by: kustomize
 spec:
-  body: "This is a test notification from your Kubernetes cluster!"
+  body: "This is a repeated test notification from your Kubernetes cluster!"
   destination:
     webhook:
       url: "https://webhook.site/18295344-a1ce-4353-9348-c5db0bdc6397"
       headers:
         Content-Type: "application/json"
         X-Source: "kubernetes-notification"
+  schedule:
+    interval: 2m
+    maxRepetitions: 5

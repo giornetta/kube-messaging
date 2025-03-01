@@ -170,6 +170,34 @@ spec:
                 - Completed
                 - Failed
                 type: string
+              deliveryAttempts:
+                description: DeliveryStatus contains information about delivery attempts
+                items:
+                  description: DeliveryStatus defines the status of delivery attempts
+                    for notifications.
+                  properties:
+                    error:
+                      description: Error message if delivery failed
+                      type: string
+                    jobName:
+                      description: JobName references the Kubernetes job that handled
+                        the delivery
+                      type: string
+                    statusCode:
+                      description: HTTP status code from the webhook response
+                      type: integer
+                    success:
+                      description: Success indicates whether the delivery was successful
+                      type: boolean
+                    time:
+                      description: Time when delivery was attempted
+                      format: date-time
+                      type: string
+                  required:
+                  - success
+                  - time
+                  type: object
+                type: array
               lastSentTime:
                 description: LastSentTime is the time when the notification was last
                   sent

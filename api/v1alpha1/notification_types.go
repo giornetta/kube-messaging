@@ -134,6 +134,24 @@ type NotificationCondition struct {
 	LastTransitionTime metav1.Time `json:"lastTransitionTime,omitempty"`
 }
 
+// DeliveryStatus defines the status of delivery attempts for notifications.
+type DeliveryStatus struct {
+	// Time when delivery was attempted
+	Time metav1.Time `json:"time"`
+
+	// Success indicates whether the delivery was successful
+	Success bool `json:"success"`
+
+	// HTTP status code from the webhook response
+	StatusCode int `json:"statusCode,omitempty"`
+
+	// Error message if delivery failed
+	Error string `json:"error,omitempty"`
+
+	// JobName references the Kubernetes job that handled the delivery
+	JobName string `json:"jobName,omitempty"`
+}
+
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.conditions[?(@.type==\"Ready\")].status"
@@ -156,6 +174,10 @@ type NotificationStatus struct {
 	// SentCount is the number of times the notification has been sent
 	// +optional
 	SentCount int `json:"sentCount,omitempty"`
+
+	// DeliveryStatus contains information about delivery attempts
+	// +optional
+	DeliveryAttempts []DeliveryStatus `json:"deliveryAttempts,omitempty"`
 }
 
 // +kubebuilder:object:root=true
