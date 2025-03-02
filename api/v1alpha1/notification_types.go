@@ -140,12 +140,15 @@ type DeliveryStatus struct {
 	Time metav1.Time `json:"time"`
 
 	// Success indicates whether the delivery was successful
+	// +optional
 	Success bool `json:"success"`
 
 	// HTTP status code from the webhook response
+	// +optional
 	StatusCode int `json:"statusCode,omitempty"`
 
 	// Error message if delivery failed
+	// +optional
 	Error string `json:"error,omitempty"`
 
 	// JobName references the Kubernetes job that handled the delivery
@@ -174,9 +177,10 @@ type NotificationStatus struct {
 	// +optional
 	SentCount int `json:"sentCount,omitempty"`
 
-	// DeliveryStatus contains information about delivery attempts
+	// DeliveryAttempts contains information about delivery attempts
 	// +optional
-	DeliveryAttempts []DeliveryStatus `json:"deliveryAttempts,omitempty"`
+	// +listType=atomic
+	DeliveryAttempts []DeliveryStatus `json:"deliveryAttempts"`
 }
 
 // +kubebuilder:object:root=true

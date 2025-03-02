@@ -68,8 +68,8 @@ func (r *NotificationReconciler) sendWebhookNotification(ctx context.Context, no
 			},
 			OwnerReferences: []metav1.OwnerReference{
 				{
-					APIVersion: notification.APIVersion,
-					Kind:       notification.Kind,
+					APIVersion: appsv1alpha1.GroupVersion.String(),
+					Kind:       "Notification",
 					Name:       notification.Name,
 					UID:        notification.UID,
 					Controller: ptr.To(true),

@@ -171,7 +171,8 @@ spec:
                 - Failed
                 type: string
               deliveryAttempts:
-                description: DeliveryStatus contains information about delivery attempts
+                description: DeliveryAttempts contains information about delivery
+                  attempts
                 items:
                   description: DeliveryStatus defines the status of delivery attempts
                     for notifications.
@@ -194,10 +195,10 @@ spec:
                       format: date-time
                       type: string
                   required:
-                  - success
                   - time
                   type: object
                 type: array
+                x-kubernetes-list-type: atomic
               lastSentTime:
                 description: LastSentTime is the time when the notification was last
                   sent

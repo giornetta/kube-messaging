@@ -25,10 +25,6 @@ func (r *NotificationReconciler) checkJobStatus(ctx context.Context, notificatio
 		return ctrl.Result{}, nil
 	}
 
-	if notification.Status.DeliveryAttempts == nil {
-		notification.Status.DeliveryAttempts = make([]appsv1alpha1.DeliveryStatus, 0)
-	}
-
 	// Look for jobs owned by this notification
 	var jobList batchv1.JobList
 	err := r.List(ctx, &jobList,

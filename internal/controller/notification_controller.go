@@ -150,6 +150,7 @@ func (r *NotificationReconciler) initializeStatusIfNeeded(ctx context.Context, n
 			Message:            "Notification is being processed",
 		},
 	}
+	notification.Status.DeliveryAttempts = make([]appsv1alpha1.DeliveryStatus, 0)
 	notification.Status.CurrentState = appsv1alpha1.NotificationPending
 
 	if err := r.Status().Update(ctx, notification); err != nil {
