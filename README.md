@@ -1,8 +1,13 @@
-# kube-messaging
-// TODO(user): Add simple overview of use/purpose
+# Kube Messaging
+
+This repository contains a set of Kubernetes custom resources and operators that can allow you to send notification and messages from within your Kubernetes cluster.
+
+> [!IMPORTANT] 
+> This is personal learning project to get familiar with Kubernetes concepts and best practices. It's not intended to be production ready, and it is under active development.
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+
+// TODO
 
 ## Getting Started
 
@@ -109,13 +114,6 @@ if you create webhooks, you need to use the above command with
 the '--force' flag and manually ensure that any custom configuration
 previously added to 'dist/chart/values.yaml' or 'dist/chart/manager/manager.yaml'
 is manually re-applied afterwards.
-
-## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
-
-**NOTE:** Run `make help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
 
 ## License
 
